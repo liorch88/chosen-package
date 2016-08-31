@@ -222,7 +222,7 @@
           if (data.selected && this.is_multiple) {
             this.choice_build(data);
           } else if (data.selected && !this.is_multiple) {
-            this.single_set_selected_text(this.choice_label(data));
+            this.single_set_selected_text(this.choice_label(data), data);
           }
         }
         if (shown_results >= this.max_shown_results) {
@@ -260,6 +260,7 @@
       option_el.className = classes.join(" ");
       option_el.style.cssText = option.style;
       option_el.setAttribute("data-option-array-index", option.array_index);
+      option_el.setAttribute("data-value", option.value);
       option_el.innerHTML = option.search_text;
       if (option.title) {
         option_el.title = option.title;
@@ -963,9 +964,10 @@
 
     Chosen.prototype.choice_build = function(item) {
       var choice, close_link,
-        _this = this;
+          _this = this;
       choice = $('<li />', {
-        "class": "search-choice"
+        "class": "search-choice",
+        "data-value": item.value
       }).html("<span>" + (this.choice_label(item)) + "</span>");
       if (item.disabled) {
         choice.addClass('search-choice-disabled');
@@ -1042,7 +1044,7 @@
         if (this.is_multiple) {
           this.choice_build(item);
         } else {
-          this.single_set_selected_text(this.choice_label(item));
+          this.single_set_selected_text(this.choice_label(item), item);
         }
         if (!((evt.metaKey || evt.ctrlKey) && this.is_multiple)) {
           this.results_hide();
@@ -1059,15 +1061,17 @@
       }
     };
 
-    Chosen.prototype.single_set_selected_text = function(text) {
+    Chosen.prototype.single_set_selected_text = function(text, item) {
       if (text == null) {
         text = this.default_text;
       }
       if (text === this.default_text) {
         this.selected_item.addClass("chosen-default");
+        this.selected_item.removeAttr("data-value");
       } else {
         this.single_deselect_control_build();
         this.selected_item.removeClass("chosen-default");
+        this.selected_item.attr("data-value", item.value);
       }
       return this.selected_item.find("span").html(text);
     };
